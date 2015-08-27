@@ -1,12 +1,18 @@
-class Class
-  def attr_checked(attr, &block)
-    define_method "#{attr}=" do |val|
-      raise 'Invalid attribute' unless block.call(val)
-      instance_variable_set("@#{attr}", val)
-    end
+module CheckedAttributes
+  def self.included(klass)
+    klass.extend ClassMethods
+  end
 
-    define_method attr do
-      instance_variable_get("@#{attr}")
+  module ClassMethods
+    def attr_checked(attr, &block)
+      define_method "#{attr}=" do |val|
+        raise 'Invalid attribute' unless block.call(val)
+        instance_variable_set("@#{attr}", val)
+      end
+
+      define_method attr do
+        instance_variable_get("@#{attr}")
+      end
     end
   end
 end
@@ -14,6 +20,8 @@ end
 require 'minitest/autorun'
 
 class Person
+  include CheckedAttributes
+
   attr_checked :age do |v|
     v >= 18
   end
