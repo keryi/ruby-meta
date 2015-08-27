@@ -1,17 +1,15 @@
 module Kernel
   def add_checked_attribute(klass, attr)
-    eval <<-ATTR
-      #{klass}.class_eval do
-        def #{attr}=(val)
-          raise 'Invalid attribute' unless val
-          @#{attr} = val
-        end
-
-        def #{attr}
-          @#{attr}
-        end
+    klass.class_eval do
+      define_method "#{attr}=" do |val|
+        raise 'Invalid attribute' unless val
+        instance_variable_set("@#{attr}", val)
       end
-    ATTR
+
+      define_method attr do
+        instance_variable_get("@#{attr}")
+      end
+    end
   end
 end
 
