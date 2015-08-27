@@ -1,25 +1,26 @@
-module Kernel
-  def add_checked_attribute(klass, attr, &block)
-    klass.class_eval do
-      define_method "#{attr}=" do |val|
-        raise 'Invalid attribute' unless block.call(val)
-        instance_variable_set("@#{attr}", val)
-      end
+class Class
+  def attr_checked(attr, &block)
+    define_method "#{attr}=" do |val|
+      raise 'Invalid attribute' unless block.call(val)
+      instance_variable_set("@#{attr}", val)
+    end
 
-      define_method attr do
-        instance_variable_get("@#{attr}")
-      end
+    define_method attr do
+      instance_variable_get("@#{attr}")
     end
   end
 end
 
 require 'minitest/autorun'
 
-class Person; end
+class Person
+  attr_checked :age do |v|
+    v >= 18
+  end
+end
 
 class TestCheckedAttribute < MiniTest::Unit::TestCase
   def setup
-    add_checked_attribute(Person, :age) { |v| v >= 18 }
     @bob = Person.new
   end
 
